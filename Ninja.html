@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ninja Language - 冬季圣诞特别版</title>
+    <style>
+        :root {
+            --primary-red: #d63031; /* 稍微调深一点的圣诞红 */
+            --gold: #fdcb6e;
+            --snow-white: #dfe6e9;
+            --dark-blue: #2d3436;
+            --forest-green: #00b894;
+            --glass-bg: rgba(255, 255, 255, 0.08); /* 更透明的玻璃背景适应深色底 */
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            /* 修改：模拟寒冷冬夜的深色渐变背景 */
+            background: linear-gradient(to bottom, #091235, #141e30, #243b55);
+            background-attachment: fixed;
+            color: var(--snow-white);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* --- 新增：忍者跑酷进度条样式 --- */
+        .scroll-track {
+            position: fixed;
+            left: 30px;
+            top: 10vh;
+            bottom: 10vh;
+            width: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            z-index: 10000;
+        }
+
+        .scroll-track::before, .scroll-track::after {
+            content: '❄';
+            position: absolute;
+            left: -6px;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 14px;
+        }
+        .scroll-track::before { top: -20px; }
+        .scroll-track::after { bottom: -20px; }
+
+        #ninjaRunner {
+            position: absolute;
+            left: -18px;
+            top: 0%;
+            font-size: 32px;
+            transition: top 0.2s ease-out;
+            filter: drop-shadow(0 0 10px var(--gold));
+            z-index: 10001;
+        }
+        
+        /* 奔跑时的晃动动画 */
+        .running {
+            animation: ninjaShake 0.2s infinite alternate;
+        }
+
+        @keyframes ninjaShake {
+            from { transform: rotate(-5deg); }
+            to { transform: rotate(5deg); }
+        }
+        /* --- 跑酷进度条样式结束 --- */
+
+        /* 雪花动画保持不变 */
+        .snowflake {
+            position: fixed;
+            top: -10px;
+            z-index: 9998; /* 降低层级，防止挡住彩蛋 */
+            user-select: none;
+            cursor: default;
+            animation: fall linear infinite;
+            text-shadow: 0 0 5px rgba(255,255,255,0.8); /* 给雪花加点光晕 */
+            pointer-events: none;
+        }
+
+        @keyframes fall {
+            to { transform: translateY(105vh) rotate(360deg); }
+        }
+
+        /* 布局容器 */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 顶部导航与标题 */
+        header {
+            text-align: center;
+            padding: 60px 0;
+            background: rgba(0, 0, 0, 0.4); /* 更深的背景 */
+            border-radius: 20px;
+            margin-bottom: 40px;
+            border: 2px solid rgba(253, 203, 110, 0.3); /* 金色边框调淡 */
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin: 0;
+            text-shadow: 0 0 15px rgba(253, 203, 110, 0.6); /* 金色光晕 */
+            transition: color 0.3s ease;
+        }
+
+        /* 彩蛋触发时的标题样式 */
+        h1.xmas-active {
+            color: var(--primary-red);
+            text-shadow: 0 0 20px var(--gold), 0 0 5px var(--primary-red);
+        }
+
+        .ninja-logo {
+            color: var(--gold);
+            font-weight: bold;
+        }
+
+        /* 介绍区块 - 玻璃拟态调整 */
+        section {
+            background: var(--glass-bg);
+            margin-bottom: 30px;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            border-left: 8px solid var(--primary-red);
+            backdrop-filter: blur(8px);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            position: relative;
+        }
+
+        h2 {
+            color: var(--gold);
+            border-bottom: 2px solid rgba(253, 203, 110, 0.5);
+            display: inline-block;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        /* 卡片布局 */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(39, 174, 96, 0.3);
+            transition: transform 0.3s, background 0.3s;
+            cursor: pointer; /* 添加手型，暗示可点击 */
+            position: relative;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .card h3 {
+            color: var(--forest-green);
+            margin-top: 0;
+            filter: brightness(1.2);
+        }
+
+        /* 列表样式 */
+        ul {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 15px;
+            line-height: 1.6;
+            position: relative;
+        }
+
+        li::before {
+            content: "❄️";
+            position: absolute;
+            left: -25px;
+            color: var(--snow-white);
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px;
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .gift-icon {
+            font-size: 50px;
+            display: block;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.3));
+        }
+
+        /* 按钮样式 */
+        .cta-btn {
+            background: linear-gradient(45deg, var(--primary-red), #c0392b);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(214, 48, 49, 0.4);
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 25px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(253, 203, 110, 0.6);
+        }
+
+        .cta-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* 彩蛋粒子特效样式 */
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            font-size: 24px;
+            z-index: 9999;
+            animation: explode 1.5s ease-out forwards;
+        }
+
+        /* 忍者小人动画样式 */
+        .ninja-sprite {
+            position: absolute;
+            pointer-events: none;
+            font-size: 40px;
+            z-index: 1000;
+            animation: ninjaJump 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        @keyframes ninjaJump {
+            0% { transform: translateY(0) scale(0); opacity: 0; }
+            20% { transform: translateY(-40px) scale(1.2); opacity: 1; }
+            50% { transform: translateY(-80px) rotate(20deg); opacity: 1; }
+            100% { transform: translateY(-120px) rotate(-20deg); opacity: 0; }
+        }
+
+        @keyframes explode {
+            0% {
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--tx), var(--ty)) scale(1.2) rotate(var(--rot));
+                opacity: 0;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="scroll-track">
+        <div id="ninjaRunner">🥷</div>
+    </div>
+
+    <script>
+        // 跑酷进度条逻辑
+        window.addEventListener('scroll', () => {
+            const runner = document.getElementById('ninjaRunner');
+            const winScroll = document.documentElement.scrollTop || document.body.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            
+            runner.style.top = scrolled + '%';
+            
+            // 添加跑动效果
+            runner.classList.add('running');
+            clearTimeout(window.runTimeout);
+            window.runTimeout = setTimeout(() => {
+                runner.classList.remove('running');
+            }, 150);
+        });
+
+        function createSnowflake() {
+            const snowflake = document.createElement('div');
+            snowflake.innerHTML = '❄';
+            snowflake.classList.add('snowflake');
+            snowflake.style.left = Math.random() * 100 + 'vw';
+            const size = Math.random() * 15 + 8;
+            snowflake.style.fontSize = size + 'px';
+            snowflake.style.opacity = Math.random() * 0.7 + 0.3;
+            snowflake.style.animationDuration = (Math.random() * 5 + 5) * 1.5 + 's';
+            if (Math.random() > 0.95) {
+                snowflake.style.color = 'var(--gold)';
+                snowflake.style.textShadow = "0 0 5px gold";
+            } else {
+                 snowflake.style.color = 'white';
+            }
+            document.body.appendChild(snowflake);
+            setTimeout(() => {
+                snowflake.remove();
+            }, 10000);
+        }
+        for(let i=0; i<30; i++) createSnowflake();
+        setInterval(createSnowflake, 300);
+
+        // 召唤忍者小人函数
+        function spawnNinja(e) {
+            const container = e.currentTarget;
+            const ninjaStyles = ['🥷', '🥷🏻', '🥷🏼', '🥷🏽', '🥷🏾', '🥷🏿'];
+            const ninja = document.createElement('div');
+            ninja.classList.add('ninja-sprite');
+            ninja.innerText = ninjaStyles[Math.floor(Math.random() * ninjaStyles.length)];
+            
+            const rect = container.getBoundingClientRect();
+            ninja.style.left = (e.clientX - rect.left - 20) + 'px';
+            ninja.style.top = (e.clientY - rect.top - 20) + 'px';
+            
+            container.appendChild(ninja);
+            setTimeout(() => ninja.remove(), 1000);
+        }
+    </script>
+
+    <div class="container">
+        <header>
+            <span class="gift-icon" id="headerIcon">🎁</span>
+            <h1 id="mainTitle"><span class="ninja-logo">Ninja</span> 语言：区块链之影</h1>
+            <p id="subTitle">—— 像忍者一样敏捷，像冬日寒冰般坚固 ——</p>
+            <button id="easterEggBtn" class="cta-btn">点击我 🎄</button>
+        </header>
+
+        <section id="intro" onclick="spawnNinja(event)">
+            <h2>什么是 Ninja 语言？</h2>
+            <p>Ninja 是一种为极高性能 Web3 应用而设计的原生智能合约语言。它借鉴了 Rust 的内存安全特性与 Move 的资源所有权模型，旨在消除链上逻辑的冗余与执行瓶颈。在这一季冬日，Ninja 为开发者提供了一套如极夜般沉静、如利刃般锋利的开发工具，确保每一份资产在严寒中依然稳固如初。</p>
+        </section>
+
+        <section id="features">
+            <h2>核心特点 (Features)</h2>
+            <div class="grid">
+                <div class="card" onclick="spawnNinja(event)">
+                    <h3>🕯️ 极致轻量</h3>
+                    <p>通过专有的 LLVM 优化层，Ninja 编译后的字节码体积缩小了 60%。这意味着更快的同步速度与更低的存储成本，让合约像雪花般在节点间轻盈流转。</p>
+                </div>
+                <div class="card" onclick="spawnNinja(event)">
+                    <h3>🛡️ 静态安全</h3>
+                    <p>引入了“零重入检查”编译器机制。在代码编译阶段即可拦截 95% 的逻辑漏洞。如同忍者的护甲，从底层加固防御，彻底杜绝黑客的寒风渗透。</p>
+                </div>
+                <div class="card" onclick="spawnNinja(event)">
+                    <h3>⚡ 异步并发</h3>
+                    <p>原生支持分片并行执行模型，利用现代多核 CPU 的算力，TPS 实测突破 100,000+。速度之快，犹如深夜穿行在屋顶的忍者，瞬息即达。</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="advantages" onclick="spawnNinja(event)">
+            <h2>为什么选择 Ninja？</h2>
+            <ul>
+                <li><strong>极致开发者体验：</strong> 拥有完善的 LSP 支持与智能补全，正如温暖的篝火，让冬夜里的编码不再寒冷。</li>
+                <li><strong>跨链互操作原语：</strong> 内置 IBC (Inter-Blockchain Communication) 原生协议支持，实现跨链资产无缝穿梭。</li>
+                <li><strong>形式化验证库：</strong> 提供标准化的数学证明工具包，让合约的每一行代码都经过逻辑审判，坚不可摧。</li>
+            </ul>
+        </section>
+
+        <section id="scenarios">
+            <h2>应用场景 (Use Cases)</h2>
+            <div class="grid">
+                <div class="card" onclick="spawnNinja(event)">
+                    <span style="font-size: 30px;">🏦</span>
+                    <h3>高频 DeFi 协议</h3>
+                    <p>完美支持订单簿 DEX 与复杂的链上合成资产衍生品交易，提供媲美中心化交易所的撮合性能。</p>
+                </div>
+                <div class="card" onclick="spawnNinja(event)">
+                    <span style="font-size: 30px;">🎮</span>
+                    <h3>全链 3A 游戏</h3>
+                    <p>将复杂的物理引擎与经济逻辑完全置于链上，实现真正的去中心化元宇宙，享受零延迟的游戏体验。</p>
+                </div>
+                <div class="card" onclick="spawnNinja(event)">
+                    <span style="font-size: 30px;">🎄</span>
+                    <h3>可编程动态 NFT</h3>
+                    <p>创建能够感知环境的 NFT。根据当前的圣诞节日气息，NFT 可以自动生成雪景特效或节日装扮，赋能数字收藏品生命力。</p>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>Merry Christmas & Happy Coding with Ninja!</p>
+            <p>© 2025 Ninja Language Foundation. 保持敏捷，无声致胜。</p>
+            <p><a href="https://www.xiaohongshu.com/user/profile/64acb01a000000001001cc88" target="_blank" style="color: inherit; text-decoration: none; opacity: 0.8;">由小xi同学制作</a></p>
+        </footer>
+    </div>
+
+    <script>
+        const btn = document.getElementById('easterEggBtn');
+        const title = document.getElementById('mainTitle');
+        const subTitle = document.getElementById('subTitle');
+        const headerIcon = document.getElementById('headerIcon');
+        let isAnimating = false;
+
+        btn.addEventListener('click', function(e) {
+            spawnNinja(e);
+            if(isAnimating) return;
+            isAnimating = true;
+            
+            const originalTitle = title.innerHTML;
+            const originalSubTitle = subTitle.innerText;
+            const originalIcon = headerIcon.innerText;
+            
+            title.innerHTML = "🎅 Ho Ho Ho! Merry Christmas! 🎄";
+            title.classList.add('xmas-active');
+            subTitle.innerText = "送给忍者的惊喜！"; 
+            headerIcon.innerText = "🥷";
+            btn.innerText = "🎁 礼物已送达!";
+            btn.style.background = "var(--forest-green)";
+
+            const rect = btn.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            createExplosion(centerX, centerY);
+
+            setTimeout(() => {
+                title.innerHTML = originalTitle;
+                title.classList.remove('xmas-active');
+                subTitle.innerText = originalSubTitle;
+                headerIcon.innerText = originalIcon;
+                btn.innerText = "点击我 🎄";
+                btn.style.background = ""; 
+                isAnimating = false;
+            }, 3000);
+        });
+
+        function createExplosion(x, y) {
+            const particles = 40; 
+            const emojis = ['🎁', '🎄', '🎅', '🦌', '❄️', '🔔', '🍬', '✨'];
+            for (let i = 0; i < particles; i++) {
+                const particle = document.createElement('span');
+                particle.classList.add('particle');
+                particle.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+                document.body.appendChild(particle);
+                const destinationX = (Math.random() - 0.5) * 600; 
+                const destinationY = (Math.random() - 0.5) * 600; 
+                const rotation = Math.random() * 720; 
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+                particle.style.setProperty('--tx', destinationX + 'px');
+                particle.style.setProperty('--ty', destinationY + 'px');
+                particle.style.setProperty('--rot', rotation + 'deg');
+                particle.addEventListener('animationend', () => {
+                    particle.remove();
+                });
+            }
+        }
+    </script>
+
+</body>
+</html>
